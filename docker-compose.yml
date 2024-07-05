@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - payment
+      - order
+      - shop
+    networks:
+      - app-network
+
+  payment:
+    build:
+      context: .
+      dockerfile: ./apps/payment/Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/paymentdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    networks:
+      - app-network
+
+  order:
+    build:
+      context: .
+      dockerfile: ./apps/order/Dockerfile
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/orderdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    networks:
+      - app-network
+
+  shop:
+    build:
+      context: .
+      dockerfile: ./apps/shop/Dockerfile
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/shopdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_MULTIPLE_DATABASES: paymentdb,orderdb,shopdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3100:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

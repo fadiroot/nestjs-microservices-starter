@@ -1,0 +1,12 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+      "declaration": false,
+      "outDir": "../dist/apps/your-app-name",
+      "paths": {
+        "@app/rabbitmq" : ["libs/rabbitmq/src"]
+      }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  }
