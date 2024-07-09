@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
-import { OrderService } from './order.service';
+import { Controller, Post, Body } from '@nestjs/common';
+import { RabbitmqService } from 'libs/rabbitmq/src'; // Assuming this is the correct import path
 
-@Controller()
+@Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly rabbitmqService: RabbitmqService) {}
 
-  @Get()
-  getHello(): string {
-    return this.orderService.getHello();
+  @Post()
+  async createOrder(@Body() orderData: any) {
+    try {
+      // Publish a message to the 'order_queue' using RabbitmqService
+      await this.rabbitmqService.sendMessage('ORDER_QUEUE', 'createOrder', orderData);
+      return { message: 'Order created successfully' };
+    } catch (error) {
+      throw new Error('Failed to create order');
+    }
   }
 }

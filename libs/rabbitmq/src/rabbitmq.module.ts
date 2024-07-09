@@ -1,32 +1,32 @@
-import { Module , DynamicModule } from '@nestjs/common';
+import { Module, DynamicModule, Global } from '@nestjs/common';
 import { RabbitmqService } from './rabbitmq.service';
-import { ClientsModule , Transport } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
+@Global()
 @Module({})
 export class RabbitmqModule {
-  static forRootAsync(arg0: {}): import("@nestjs/common").Type<any> | DynamicModule | Promise<DynamicModule> | import("@nestjs/common").ForwardReference<any> {
-    throw new Error('Method not implemented.');
-  }
-  static forRoot (options : {uri:string}){
+  static forRootAsync(): DynamicModule {
     return {
-      module : RabbitmqModule,
-      imports:[
-        ClientsModule.register([
-          {
-            name : 'RABBITMQ_CLIENT',
-            transport : Transport.RMQ,
-            options : {
-              urls : [options.uri] , 
-              queue : 'dafault_queue',
-              queueOptions : {
-                durable : false
-              }
-            }
-          }
-        ])
+      module: RabbitmqModule,
+      imports: [
+        ClientsModule.registerAsync(
+          Object.entries(RabbitmqService.QUEUE_CONFIG).map(([key, queueName]) => ({
+            name: key,
+            useFactory: async () => ({
+              transport: Transport.RMQ,
+              options: {
+                urls: ['amqp://localhost:5672'],
+                queue: queueName,
+                queueOptions: {
+                  durable: false,
+                },
+              },
+            }),
+          }))
+        ),
       ],
-      providers : [RabbitmqModule] , 
-      export : [RabbitmqService]
-    }
+      providers: [RabbitmqService],
+      exports: [RabbitmqService, ClientsModule],
+    };
   }
 }
