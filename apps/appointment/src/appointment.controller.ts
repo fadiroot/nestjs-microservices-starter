@@ -8,7 +8,11 @@ export class AppointmentController {
   @Post()
   async createOrder(@Body() appointmentData: any) {
     try {
-      await this.rabbitmqService.sendMessage('appointment_QUEUE', 'createappointment', appointmentData);
+      await this.rabbitmqService.sendMessage(
+        'appointment_QUEUE',
+        'createappointment',
+        appointmentData,
+      );
       return { message: 'Order created successfully' };
     } catch (error) {
       throw new Error('Failed to create order');
