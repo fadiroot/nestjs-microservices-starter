@@ -10,13 +10,13 @@ export class GatewayService implements OnModuleInit {
   constructor(private readonly rabbitmqService: RabbitmqService) {}
 
   async onModuleInit() {
-    await this.listenForOrderCreation();
+    await this.listenForAppointmentCreation();
   }
 
-  private async listenForOrderCreation() {
+  private async listenForAppointmentCreation() {
     try {
       const channel = await this.rabbitmqService.getChannel();
-      const queueName = RabbitmqService.QUEUE_CONFIG.ORDER_QUEUE;
+      const queueName = RabbitmqService.QUEUE_CONFIG.APPOINTMENT_QUEUE;
 
       await channel.assertQueue(queueName, { durable: false });
 
@@ -26,7 +26,6 @@ export class GatewayService implements OnModuleInit {
         if (message) {
           const content = message.content.toString();
           const data = JSON.parse(content);
-
           this.logger.log(`Received order creation message: ${JSON.stringify(data)}`);
 
           // Process the order data here

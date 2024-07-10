@@ -28,13 +28,13 @@
         "tsConfigPath": "apps/payment/tsconfig.app.json"
       }
     },
-    "order": {
+    "appointment": {
       "type": "application",
-      "root": "apps/order",
+      "root": "apps/appointment",
       "entryFile": "main",
-      "sourceRoot": "apps/order/src",
+      "sourceRoot": "apps/appointment/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/order/tsconfig.app.json"
+        "tsConfigPath": "apps/appointment/tsconfig.app.json"
       }
     },
     "shop": {
@@ -53,6 +53,15 @@
       "sourceRoot": "libs/config/src",
       "compilerOptions": {
         "tsConfigPath": "libs/config/tsconfig.lib.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     }
   }

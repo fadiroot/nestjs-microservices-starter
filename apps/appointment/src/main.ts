@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { OrderModule } from './order.module';
+import { AppointmentModule } from './appointment.module';
 async function bootstrap() {
-  const app = await NestFactory.create(OrderModule);
+  const app = await NestFactory.create(AppointmentModule);
   
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://localhost:5672'],
-      queue: 'order_queue',
+      queue: 'appointment_queue',
       queueOptions: {
         durable: false
       },
@@ -18,6 +18,6 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(3002);
   
-  console.log(`Order microservice is running on: ${await app.getUrl()}`);
+  console.log(`Appointment microservice is running on: ${await app.getUrl()}`);
 }
 bootstrap();

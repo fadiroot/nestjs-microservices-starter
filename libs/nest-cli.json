@@ -8,7 +8,9 @@
       "compilerOptions": {
         "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
       }
-    }
+    } 
+    
+  
   },
   "compilerOptions": {
     "webpack": true

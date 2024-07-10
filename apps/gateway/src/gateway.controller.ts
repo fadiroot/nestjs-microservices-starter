@@ -15,7 +15,7 @@ export class GatewayController {
   async createOrder(@Body() orderData: any) {
     try {
       // Use uppercase queue name to match the RabbitmqService configuration
-      await this.rabbitmqService.sendMessage('ORDER_QUEUE', 'createOrder', orderData);
+      await this.rabbitmqService.sendMessage('appointment_QUEUE', 'createOrder', orderData);
       return { message: 'Order created successfully' };
     } catch (error) {
       console.error('Error creating order:', error);

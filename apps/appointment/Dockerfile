@@ -12,4 +12,4 @@ RUN npm run build
 
 EXPOSE 3002
 
-CMD ["node", "dist/apps/order/main"]
+CMD ["node", "dist/apps/appointment/main"]

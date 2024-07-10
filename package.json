@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "starter:dev gateway": "nest start gateway --watch",
     "start:dev payment": "nest start gateway --watch",
-    "start:dev order": "nest start order --watch",
+    "start:dev appointment": "nest start appointment --watch",
     "start:dev shop": "nest start shop --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/starter-microservices/main",
@@ -29,9 +29,11 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/microservices": "^10.3.10",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/typeorm": "^10.0.2",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.4",
     "dotenv": "^16.4.5",
+    "pg": "^8.12.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
@@ -80,7 +82,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1"
+      "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1"
     }
   }
 }

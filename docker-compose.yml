@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     depends_on:
       - payment
-      - order
+      - appointment
       - shop
     networks:
       - app-network
@@ -29,17 +29,17 @@ services:
     networks:
       - app-network
 
-  order:
+  appointment:
     build:
       context: .
-      dockerfile: ./apps/order/Dockerfile
+      dockerfile: ./apps/appointment/Dockerfile
     ports:
       - "3002:3002"
     depends_on:
       - postgres
       - rabbitmq
     environment:
-      - DATABASE_URL=postgres://user:password@postgres:5432/orderdb
+      - DATABASE_URL=postgres://user:password@postgres:5432/appointmentdb
       - RABBITMQ_URL=amqp://rabbitmq:5672
     networks:
       - app-network
@@ -66,7 +66,6 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_MULTIPLE_DATABASES: paymentdb,orderdb,shopdb
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh

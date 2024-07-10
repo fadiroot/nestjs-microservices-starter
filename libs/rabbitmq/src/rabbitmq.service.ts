@@ -1,39 +1,29 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientProxy, ClientProxyFactory, Transport, ClientOptions } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { ConfigService } from '@app/config';
 import * as amqp from 'amqplib';
 
 @Injectable()
 export class RabbitmqService implements OnModuleInit {
-  private clients: { [key: string]: ClientProxy } = {};
   private connection: amqp.Connection;
   private channel: amqp.Channel;
 
   static readonly QUEUE_CONFIG = {
-    ORDER_QUEUE: 'order_queue',
+    APPOINTMENT_QUEUE: 'appointment_queue',
     PAYMENT_QUEUE: 'payment_queue',
     NOTIFICATION_QUEUE: 'notification_queue',
     // Add more queues as needed
   };
 
-  constructor(private readonly configService: ConfigService) {
-    Object.entries(RabbitmqService.QUEUE_CONFIG).forEach(([key, queueName]) => {
-      const queueConfig: ClientOptions = {
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://localhost:5672'],
-          queue: queueName,
-          queueOptions: {
-            durable: false,
-          },
-        },
-      };
-      this.clients[key] = ClientProxyFactory.create(queueConfig);
-    });
-  }
+  constructor(
+    @Inject('APPOINTMENT_QUEUE') private orderClient: ClientProxy,
+    @Inject('PAYMENT_QUEUE') private paymentClient: ClientProxy,
+    @Inject('NOTIFICATION_QUEUE') private notificationClient: ClientProxy,
+    private readonly configService: ConfigService
+  ) {}
 
   async onModuleInit() {
-    this.connection = await amqp.connect('amqp://localhost:5672');
+    this.connection = await amqp.connect(this.configService.getRabbitMQUri());
     this.channel = await this.connection.createChannel();
 
     for (const queueName of Object.values(RabbitmqService.QUEUE_CONFIG)) {
@@ -42,10 +32,16 @@ export class RabbitmqService implements OnModuleInit {
   }
 
   getClient(queueName: string): ClientProxy {
-    if (!this.clients[queueName]) {
-      throw new Error(`Queue ${queueName} is not configured.`);
+    switch (queueName) {
+      case RabbitmqService.QUEUE_CONFIG.APPOINTMENT_QUEUE:
+        return this.orderClient;
+      case RabbitmqService.QUEUE_CONFIG.PAYMENT_QUEUE:
+        return this.paymentClient;
+      case RabbitmqService.QUEUE_CONFIG.NOTIFICATION_QUEUE:
+        return this.notificationClient;
+      default:
+        throw new Error(`Queue ${queueName} is not configured.`);
     }
-    return this.clients[queueName];
   }
 
   async sendMessage(queueName: string, pattern: string, data: any): Promise<any> {
@@ -59,7 +55,6 @@ export class RabbitmqService implements OnModuleInit {
     }
     return this.channel;
   }
-
 
   // ... rest of the service methods ...
 }
